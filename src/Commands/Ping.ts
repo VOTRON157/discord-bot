@@ -1,7 +1,7 @@
 import Command from '../Classes/Commands'
 import { SlashCommandBuilder, UserContextMenuCommandInteraction} from 'discord.js'
 
-export default class implements Command {
+export default new class implements Command {
     public data = new SlashCommandBuilder()
     .setName('ping')
     .setDescription('A ping command!')

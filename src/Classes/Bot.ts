@@ -1,8 +1,10 @@
-import { Client, ClientOptions, RESTPostAPIChatInputApplicationCommandsJSONBody, REST, Routes } from 'discord.js'
+import { Client, ClientOptions, RESTPostAPIChatInputApplicationCommandsJSONBody, REST, Routes, SlashCommandBuilder } from 'discord.js'
 import { readdirSync } from 'fs'
+import Command from './Commands'
+import Events from './Events'
 
 export default class Bot extends Client {
-    readonly commands: Array<RESTPostAPIChatInputApplicationCommandsJSONBody>;
+    readonly commands: Array<SlashCommandBuilder>;
     readonly events: Array<object>;
     constructor(client: ClientOptions) {
         super(client)
@@ -13,19 +15,17 @@ export default class Bot extends Client {
     }
 
     private async setupEvents(): Promise<void> {
-        const commandsFolder = readdirSync('./src/Ouvintes')
-        for (var command of commandsFolder) {
-            const eventClass = require('../Ouvintes/' + command.replace('.ts', '')).default
-            const props = new eventClass();
+        const eventsFolder: Array<string> = readdirSync('./src/Ouvintes')
+        for (var event of eventsFolder) {
+            const props: Events = require('../Ouvintes/' + event.replace('.ts', '')).default
             this.on(props.name, (...args) => props.run(this, ...args))
         }
     }
 
     private async setupCommands(): Promise<void> {
-        const commandsFolder = readdirSync('./src/Commands')
+        const commandsFolder: Array<string> = readdirSync('./src/Commands')
         for (var command of commandsFolder) {
-            const cmdClass = require('../Commands/' + command.replace('.ts', '')).default
-            const props = new cmdClass();
+            const props: Command = require('../Commands/' + command.replace('.ts', '')).default
             this.commands.push(props.data)
         }
         const rest = new REST({ version: '10' }).setToken(process.env.TOKEN as string);

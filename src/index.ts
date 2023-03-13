@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 const client: Bot = new Bot({
-    intents: [IntentsBitField.Flags.GuildMembers, IntentsBitField.Flags.Guilds]
+    intents: [IntentsBitField.Flags.GuildMembers, IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages, IntentsBitField.Flags.MessageContent]
 })
 
 

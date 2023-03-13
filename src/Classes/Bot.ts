@@ -3,11 +3,24 @@ import { readdirSync } from 'fs'
 
 export default class Bot extends Client {
     readonly commands: Array<RESTPostAPIChatInputApplicationCommandsJSONBody>;
+    readonly events: Array<object>;
     constructor(client: ClientOptions) {
         super(client)
         this.commands = []
+        this.events = []
+        this.setupEvents()
         this.setupCommands()
     }
+
+    private async setupEvents(): Promise<void> {
+        const commandsFolder = readdirSync('./src/Ouvintes')
+        for (var command of commandsFolder) {
+            const eventClass = require('../Ouvintes/' + command.replace('.ts', '')).default
+            const props = new eventClass();
+            this.on(props.name, (...args) => props.run(this, ...args))
+        }
+    }
+
     private async setupCommands(): Promise<void> {
         const commandsFolder = readdirSync('./src/Commands')
         for (var command of commandsFolder) {

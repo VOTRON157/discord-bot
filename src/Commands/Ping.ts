@@ -1,11 +1,12 @@
-import Command from '../Classes/Commands'
+import Command from '../Sructures/Commands'
+import Bot from '../Sructures/Bot'
 import { SlashCommandBuilder, UserContextMenuCommandInteraction} from 'discord.js'
 
 export default new class implements Command {
     public data = new SlashCommandBuilder()
     .setName('ping')
     .setDescription('A ping command!')
-    public run = (interaction: UserContextMenuCommandInteraction) => {
-        interaction.reply('Funcionando?')
+    public run = (client: typeof Bot, interaction: UserContextMenuCommandInteraction) => {
+        interaction.reply('Pong!')
     }
 }

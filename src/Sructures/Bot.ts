@@ -1,4 +1,4 @@
-import { Client, RESTPostAPIChatInputApplicationCommandsJSONBody, REST, Routes, IntentsBitField } from 'discord.js'
+import { Client, IntentsBitField } from 'discord.js'
 import Logger from './Logger'
 import { readdirSync } from 'fs'
 import Command from './Commands'
@@ -25,7 +25,7 @@ export default new class Bot extends Client {
         this.login(process.env.TOKEN)
     }
 
-    private async setupEvents(): Promise<void> {
+    private async setupEvents(): Promise<void> { // Reunir todos os enventos para adicionar ao client.
         const eventsFolder: Array<string> = readdirSync('./src/Ouvintes')
         for (var event of eventsFolder) {
             const props: Events = require('../Ouvintes/' + event.replace('.ts', '')).default
@@ -33,7 +33,7 @@ export default new class Bot extends Client {
         }
     }
 
-    private async setupCommands(): Promise<void> {
+    private async setupCommands(): Promise<void> { // Reunir todos os comandos e mandar para a API.
         try {
         const commandsFolder: Array<string> = readdirSync('./src/Commands')
         for (var command of commandsFolder) {

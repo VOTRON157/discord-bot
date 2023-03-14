@@ -8,7 +8,7 @@ export default class Logger {
             minutes: date.getMinutes(),
             seconds: date.getSeconds()
         }
-        return `${times.hours}:${times.minutes}:${times.seconds}`
+        return `${times.hours.toString().length === 1 ? "0" + times.hours.toString() : times.hours}:${times.minutes.toString().length === 1 ? "0" + times.minutes.toString() : times.minutes}:${times.seconds.toString().length === 1 ? "0" + times.seconds.toString() : times.seconds}`
     }
     public Log(message: string): void{
         console.log(`${chalk.magenta(`[${this.getCurrentTime()}]`)} ${message}`)

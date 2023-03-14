@@ -7,6 +7,6 @@ export default new class implements Command {
     .setName('ping')
     .setDescription('A ping command!')
     public run = (client: typeof Bot, interaction: UserContextMenuCommandInteraction) => {
-        interaction.reply('Pong!')
+        interaction.reply(`🏓 Pong! meu ping é: ${client.ws.ping}ms`)
     }
 }

@@ -1,6 +1,7 @@
-import { SlashCommandBuilder } from "discord.js"
+import { RESTPostAPIChatInputApplicationCommandsJSONBody} from "discord.js"
 
 export default interface CommandSetting {
-    data: SlashCommandBuilder
-    run: Function;
+    data: RESTPostAPIChatInputApplicationCommandsJSONBody
+    run: Function
+    default?: CommandSetting
 }

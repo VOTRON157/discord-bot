@@ -1,8 +1,8 @@
-import { Client, IntentsBitField } from 'discord.js'
+import { Client, IntentsBitField, REST, Routes, ClientEvents, Events} from 'discord.js'
 import Logger from './Logger'
 import { readdirSync } from 'fs'
 import Command from './Commands'
-import Events from './Events'
+import Event from './Events'
 
 export default new class Bot extends Client {
     readonly commands: Array<Command>;
@@ -28,23 +28,27 @@ export default new class Bot extends Client {
     private async setupEvents(): Promise<void> { // Reunir todos os enventos para adicionar ao client.
         const eventsFolder: Array<string> = readdirSync('./src/Ouvintes')
         for (var event of eventsFolder) {
-            const props: Events = require('../Ouvintes/' + event.replace('.ts', '')).default
-            this.on(props.name, (...args) => props.run(this, ...args))
+            let { default: props }: Event = await import(`../Ouvintes/${event}`)
+            this.on(props?.name as string, (...args) => props?.run(this, ...args))
         }
     }
 
     private async setupCommands(): Promise<void> { // Reunir todos os comandos e mandar para a API.
         try {
-        const commandsFolder: Array<string> = readdirSync('./src/Commands')
-        for (var command of commandsFolder) {
-            const props: Command = require('../Commands/' + command.replace('.ts', '')).default
-            this.commands.push(props)
-        }
+            const commandsFolder: Array<string> = readdirSync('./src/Commands')
+            for (var command of commandsFolder) {
+                const { default: props }: Command = await import(`../Commands/${command}`)
+                this.commands.push(props as Command)
+            }
             this.Logger.Alert('Começando a enviar os comandos.')
-            this.application?.commands.set(this.commands.map(cmd => cmd.data))
+            const commands = this.commands.map(cmd => cmd.data)
+            const rest = new REST({ version: '10' }).setToken(process.env.TOKEN as string);
+            await rest.put(Routes.applicationCommands(process.env.clientID as string), {
+                body: commands,
+            });
             this.Logger.Log(`Sucesso! Foram enviados ${this.commands.length} comando(s).`)
         } catch (error: any) {
-            this.Logger.Error(error.message)
+            this.Logger.Error(error.stack)
         }
     }
 }

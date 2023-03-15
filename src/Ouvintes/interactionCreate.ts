@@ -1,5 +1,5 @@
 import EventsConfig from '../Sructures/Events'
-import Bot from '../Sructures/Bot'
+import Bot from '../Sructures/Client'
 import { Events, UserContextMenuCommandInteraction } from 'discord.js'
 
 export default new class implements EventsConfig {

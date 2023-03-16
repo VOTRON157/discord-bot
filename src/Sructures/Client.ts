@@ -3,11 +3,14 @@ import Logger from './Logger'
 import { readdirSync } from 'fs'
 import Command from './Commands'
 import Event from './Events'
+import config from '../Config/Client'
+
 
 export default new class Bot extends Client {
     readonly commands: Array<Command>;
     readonly events: Array<object>;
     readonly Logger: Logger;
+    
     constructor() {
         super({
             intents: [IntentsBitField.Flags.GuildMembers, IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages, IntentsBitField.Flags.MessageContent]
@@ -42,8 +45,8 @@ export default new class Bot extends Client {
             }
             this.Logger.Alert('Começando a enviar os comandos.')
             const commands = this.commands.map(cmd => cmd.data)
-            const rest = new REST({ version: '10' }).setToken(process.env.TOKEN as string);
-            await rest.put(Routes.applicationCommands(process.env.clientID as string), {
+            const rest = new REST({ version: '10' }).setToken(config.token);
+            await rest.put(Routes.applicationCommands(config.clientId), {
                 body: commands,
             });
             this.Logger.Log(`Sucesso! Foram enviados ${this.commands.length} comando(s).`)

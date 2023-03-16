@@ -1,7 +1,7 @@
 import Command  from '../Sructures/Commands'
 import Bot from '../Sructures/Client'
 import { UserContextMenuCommandInteraction } from 'discord.js'
-import { SlashCommandBuilder } from '@discordjs/builders'
+import { SlashCommandBuilder, EmbedBuilder } from '@discordjs/builders'
 
 export default new class implements Command {
     public data = new SlashCommandBuilder()
@@ -11,8 +11,12 @@ export default new class implements Command {
     .setName('usuario').setDescription('O usuario que você deseja ver o avatar').setRequired(false)).toJSON()
     public run = (client: typeof Bot, interaction: UserContextMenuCommandInteraction) => {
         const user = interaction.options.getUser('usuario') || interaction.user
+        const avatarURL = user?.displayAvatarURL({size: 4096, extension: 'png'})
+        const embed = new EmbedBuilder()
+        .setColor(0xffff)
+        .setImage(avatarURL)
         interaction.reply({
-            content: `Avatar do marmanjo: ${user?.displayAvatarURL({size: 4096, extension: 'png'})}`
+            embeds: [embed]
         })
     }
 }

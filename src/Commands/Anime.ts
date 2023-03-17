@@ -4,6 +4,7 @@ import { UserContextMenuCommandInteraction, ButtonStyle, ComponentType } from 'd
 import { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, time } from '@discordjs/builders'
 import axios from 'axios'
 import config from '../Config/Client'
+import Translator from 'nodepapago';
 
 export default new class implements Command {
     public data = new SlashCommandBuilder()
@@ -36,10 +37,10 @@ export default new class implements Command {
         }
         let animeId = await axios.get(`https://gogoanime.consumet.stream/search?keyw=${encodeURIComponent(keyw?.value as string)}`)
         const _data: Array<any> = animeId.data
-        if(_data.length === 0) return await interaction.followUp({
+        if (_data.length === 0) return await interaction.followUp({
             content: '🔍❓ Não achei nenhum resultado.'
         })
-        console.log('Passou')
+
         animeId = _data[0].animeId
         const response = await axios.get(`https://gogoanime.consumet.stream/anime-details/${animeId}`)
 
@@ -47,17 +48,25 @@ export default new class implements Command {
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId('add_favorite')
-                    .setLabel('Adicionar aos favoritos')
+                    .setLabel('Favoritar')
                     .setEmoji({
                         name: '❤️'
                     })
                     .setStyle(ButtonStyle.Success),
+                new ButtonBuilder()
+                    .setCustomId('translate')
+                    .setLabel('Traduzir')
+                    .setEmoji({
+                        name: '🇧🇷'
+                    })
+                    .setStyle(ButtonStyle.Primary)
             );
+
 
         const data: animesData = response.data
         const embed = new EmbedBuilder()
             .setDescription(data.synopsis)
-            .setTitle(data.animeTitle)
+            .setTitle('🔍 ' + data.animeTitle)
             .addFields({
                 name: '📺 Total de episodios',
                 value: data.totalEpisodes
@@ -67,6 +76,7 @@ export default new class implements Command {
             })
             .setImage(data.animeImg)
             .setColor(config.embedColor)
+
         const translateIntr = await interaction.followUp({
             embeds: [embed],
             components: [row]
@@ -75,17 +85,65 @@ export default new class implements Command {
         translateIntr.createMessageComponentCollector({
             componentType: ComponentType.Button,
             time: 30 * 1000,
-            max: 1,
             filter: i => i.user.id === interaction.user.id
         })
-            .once('collect', async (i) => {
-                i.reply({
-                    ephemeral: true,
-                    content: 'Eu ainda não tenho um banco de dados, mas quando eu tiver você vai conseguir salvar seus animes preferidos tabóm? confia em mim ☺️.\nhttps://tenor.com/view/kiss-anime-cute-kawaii-gif-13843260'
-                })
+            .on('collect', async (i) => {
+                switch (i.customId) {
+                    case 'translate':
+                        row.components[1].setDisabled(true)
+                            .setLabel('Traduzindo')
+                            .setEmoji({
+                                'id': '737493428270661672'
+                            })
+                        await translateIntr.edit({
+                            components: [row]
+                        })
+                        await i.deferUpdate()
+                        let parameter = [{
+                            source: 'en',
+                            target: 'pt',
+                            text: data.synopsis
+                        }]
+                        for (var j of data.genres) {
+                            parameter.push({
+                                target: 'pt',
+                                source: 'en',
+                                text: j
+                            })
+                        }
+                        const texts = await new Translator({
+                            parameter: parameter,
+                            honorific: true
+                        }).translate() as Array<string>
+
+                        embed.setDescription(texts[0])
+                            .setFields({
+                                name: '📺 Total de episodios',
+                                value: data.totalEpisodes
+                            }, {
+                                name: '📚 Gênero(s)',
+                                value: texts.slice(1).join(', ')
+                            })
+                        await i.editReply({
+                            embeds: [embed],
+                        })
+
+                        break;
+                    case 'add_favorite':
+                        row.components[0].setDisabled(true)
+                        interaction.editReply({
+                            components: [row]
+                        })
+                        i.reply({
+                            ephemeral: true,
+                            content: 'Eu ainda não tenho um banco de dados, mas quando eu tiver você vai conseguir salvar seus animes preferidos tabóm? confia em mim ☺️.\nhttps://tenor.com/view/kiss-anime-cute-kawaii-gif-13843260'
+                        })
+                        break;
+                }
             })
-            .once('end', () => {
+            .on('end', () => {
                 row.components[0].setDisabled(true)
+                row.components[1].setDisabled(true)
                 interaction.editReply({
                     components: [row]
                 })

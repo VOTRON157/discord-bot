@@ -9,10 +9,13 @@ export default new class implements EventsConfig {
             if (!interaction.isCommand()) return;
             const command = client.commands.find(intr => intr.data.name == interaction.commandName)
             await command?.run(client, interaction)
-        } catch (e) {
-            interaction.followUp({
-                ephemeral: true,
-                content: `Ocorreu um erro durante a execução do comando "${interaction.commandName}", perdão.`
+        } catch (e: any) {
+            Bot.Logger.Error(e.message)
+            if (interaction.replied) interaction.followUp({
+                content: `Algo deu errado ao executar o comando **${interaction.commandName}**, perdão.`
+            })
+            else interaction.reply({
+                content: `Algo deu errado ao executar o comando **${interaction.commandName}**, perdão.`
             })
         }
     }

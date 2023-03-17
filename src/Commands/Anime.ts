@@ -49,16 +49,10 @@ export default new class implements Command {
                 new ButtonBuilder()
                     .setCustomId('add_favorite')
                     .setLabel('Favoritar')
-                    .setEmoji({
-                        name: '❤️'
-                    })
                     .setStyle(ButtonStyle.Success),
                 new ButtonBuilder()
                     .setCustomId('translate')
                     .setLabel('Traduzir')
-                    .setEmoji({
-                        name: '🇧🇷'
-                    })
                     .setStyle(ButtonStyle.Primary)
             );
 
@@ -76,6 +70,7 @@ export default new class implements Command {
             })
             .setImage(data.animeImg)
             .setColor(config.embedColor)
+            .setTimestamp()
 
         const translateIntr = await interaction.followUp({
             embeds: [embed],
@@ -92,9 +87,6 @@ export default new class implements Command {
                     case 'translate':
                         row.components[1].setDisabled(true)
                             .setLabel('Traduzindo')
-                            .setEmoji({
-                                'id': '737493428270661672'
-                            })
                         await translateIntr.edit({
                             components: [row]
                         })

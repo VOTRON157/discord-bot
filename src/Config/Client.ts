@@ -9,7 +9,7 @@ const clientConfig: clientConfig = {
     clientId: process.env.clientID as string,
     token: process.env.TOKEN as string,
     embedColor: 0xFFFFFF,
-    cooldown: 8,
+    cooldown: 6,
 }
 
 

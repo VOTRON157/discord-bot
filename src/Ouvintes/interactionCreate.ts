@@ -12,12 +12,15 @@ export default new class implements EventsConfig {
             if (!interaction.isCommand()) return;
             const command = client.commands.find(intr => intr.data.name == interaction.commandName)
             if(!cooldowns.has(interaction.user.id)) cooldowns.set(interaction.user.id, now)
-            else if(Math.abs(cooldowns.get(interaction.user.id) as number - now) <= config.cooldown * 1000) return await interaction.reply(`Você precisa esperar um pouco antes de usar outro comando, aproximadamente \`\`${config.cooldown - Math.abs(cooldowns.get(interaction.user.id) as number - now) / 1000}\`\` segundo(s)`)
+            else if(Math.abs(cooldowns.get(interaction.user.id) as number - now) <= config.cooldown * 1000) return await interaction.reply({
+                content: `⏳ Espere \`\`${(config.cooldown - Math.abs(cooldowns.get(interaction.user.id) as number - now) / 1000).toPrecision(4)}\`\` segundo(s) para usar outro comando.\nhttps://tenor.com/bXrca.gif`,
+                ephemeral: true
+            })
             else cooldowns.delete(interaction.user.id)
             await command?.run(client, interaction)
             cooldowns.set(interaction.user.id, now)
         } catch (e: any) {
-            Bot.Logger.Error(e.message)
+            Bot.Logger.Error(e)
             if (interaction.replied) interaction.followUp({
                 content: `Algo deu errado ao executar o comando **${interaction.commandName}**, perdão.`
             })

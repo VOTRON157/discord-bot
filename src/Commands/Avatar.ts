@@ -7,15 +7,15 @@ import config from '../Config/Client'
 export default new class implements Command {
     public data = new SlashCommandBuilder()
         .setName('avatar')
-        .setDescription('Veja o avatar do seu amigo.')
+        .setDescription('⭐ Diversos ➝ Veja o avatar de qualuer usúario.')
         .addUserOption((option) => option
-            .setName('usuario').setDescription('O usuario que você deseja ver o avatar').setRequired(false)).toJSON()
+            .setName('user').setDescription('🤔 ➝ O usuario que você deseja ver o avatar.').setRequired(false)).toJSON()
     public run = (client: typeof Bot, interaction: UserContextMenuCommandInteraction) => {
-        const user = interaction.options.getUser('usuario') || interaction.user
+        const user = interaction.options.getUser('user') || interaction.user
         const avatarURL = user?.displayAvatarURL({ size: 4096, extension: 'png' })
         const embed = new EmbedBuilder()
             .setColor(config.embedColor)
-            .setDescription(`:frame_photo: [Avatar de: ${user.tag}](${avatarURL})`)
+            .setDescription(`:frame_photo: [Avatar de: ${user.tag}](${avatarURL}) ${user.id == client.user?.id ? '(sou bonita né?)' : ''}`)
             .setImage(avatarURL)
             .setTimestamp()
         interaction.reply({

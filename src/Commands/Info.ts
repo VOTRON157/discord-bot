@@ -1,6 +1,6 @@
 import Command from '../Sructures/Commands'
 import Bot from '../Sructures/Client'
-import { UserContextMenuCommandInteraction, ChatInputCommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction, Guild, ChannelType } from 'discord.js'
 import { SlashCommandBuilder, EmbedBuilder } from '@discordjs/builders'
 import config from '../Config/Client'
 
@@ -18,13 +18,13 @@ export default new class implements Command {
                 .setName('server')
                 .setDescription('❓ ➝ Informações sobre o servidor.'))
         .toJSON()
-    public run = (client: typeof Bot, interaction: ChatInputCommandInteraction) => {
+    public run = async (client: typeof Bot, interaction: ChatInputCommandInteraction) => {
         switch(interaction.options.getSubcommand()){
             case 'user':
                 const user = interaction.options.getUser('user') || interaction.user
                 const guildMember = interaction.guild?.members.cache.get(user.id)
                 const avatarURL = user?.displayAvatarURL({ size: 4096, extension: 'png' })
-                const embed = new EmbedBuilder()
+                const userEmbed = new EmbedBuilder()
                 .setColor(config.embedColor)
                 .setTimestamp()
                 .setTitle(`🔍 ${user.tag}`)
@@ -39,22 +39,47 @@ export default new class implements Command {
                 })
                 .setThumbnail(avatarURL)
                 if(guildMember){
-                    embed.addFields({
+                    userEmbed.addFields({
                         name: '🏠 ➝ Membro deste',
-                        value: `<t:${Math.trunc(guildMember?.joinedTimestamp as number / 1000)}:F>`,
+                        value: `<t:${Math.trunc(guildMember?.joinedTimestamp as number / 1000) - 1}:F>`,
                     }, {
                         name: `💼 ➝ Cargos (${guildMember.roles.cache.size})` ,
-                        value: `${guildMember.roles.cache.map(role =>  role).join(', ')}`,
+                        value: `${guildMember.roles.cache.map(role =>  role).join(', ').replace(', @everyone', '').slice(0, 1024)}`,
                         inline: true
                     })
                 }
                 interaction.reply({
-                    embeds: [embed]
+                    embeds: [userEmbed]
                 })
             break;
             case 'server':
-                interaction.reply({
-                    content: 'Soon...'
+                const guild = interaction.guild as Guild 
+                const guildEmbed = new EmbedBuilder()
+                .setColor(config.embedColor)
+                .setTimestamp()
+                .setTitle(`🔍 ${guild.name}`)
+                .setThumbnail(guild.iconURL({
+                    size: 4096,
+                    extension: 'png'
+                }))
+                .addFields({
+                    name: '🪪 ➝ ID do servidor',
+                    value: guild.id,
+                    inline: true
+                }, {
+                    name: '🌠 ➝ Servidor criado em',
+                    value: `<t:${Math.trunc(guild.createdTimestamp / 1000)}:F>`,
+                    inline: true
+                }, {
+                    name: '👑 ➝ Dono',
+                    value: `<@!${guild.ownerId}>`,
+                    inline: true
+                }, {
+                    name: '🗨️ ➝ Canais',
+                    value: `**Texto:** ${guild.channels.cache.filter(ch => ch.type == ChannelType.GuildText).size}\n**Voz:** ${guild.channels.cache.filter(ch => ch.type == ChannelType.GuildVoice).size}`
+                })
+                await interaction.reply({
+                    embeds: [guildEmbed]
                 })
         }
     }

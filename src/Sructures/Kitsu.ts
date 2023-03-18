@@ -10,10 +10,10 @@ export default class KistsuAPI {
     public async findAnime(animeName: string): Promise<any> {
         const animes = await this.findAnimes(animeName)
         const anime = animes.data[0]
+        if(!anime) return false
         const response = await axios.get(anime.relationships.genres.links.related)
         anime.genres = response.data.data.map((data: any) => data.attributes.name)
         if(!anime.genres.length) anime.genres = ['not found']
-        //console.log(anime)
         return anime
     }
 }

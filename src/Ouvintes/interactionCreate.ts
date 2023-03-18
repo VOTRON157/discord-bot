@@ -21,7 +21,7 @@ export default new class implements EventsConfig {
             cooldowns.set(interaction.user.id, now)
         } catch (e: any) {
             Bot.Logger.Error(e)
-            if (interaction.replied) interaction.followUp({
+            if (!interaction.replied) interaction.followUp({
                 content: `Algo deu errado ao executar o comando **${interaction.commandName}**, perdão.`
             })
             else interaction.reply({

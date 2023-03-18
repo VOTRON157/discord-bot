@@ -20,7 +20,10 @@ export default new class implements Command {
         const keyw = interaction.options.get('anime_name')
         const KistsuAPI = new Kitsu()
         const data = await KistsuAPI.findAnime(keyw?.value as string)
-
+        if(!data) return await interaction.followUp({
+            content: '🔍 Não encontrei nenhum resultado.',
+            ephemeral: true
+        })
         const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
                 new ButtonBuilder()
@@ -85,6 +88,7 @@ export default new class implements Command {
                                 text: j
                             })
                         }
+                        // Desculpa eu do futuro que vai ler isso depois 😢
                         const texts = await new Translator({
                             parameter: parameter,
                             honorific: true

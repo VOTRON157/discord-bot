@@ -32,7 +32,7 @@ export default new class implements Command {
                     .setLabel('Traduzir')
                     .setStyle(ButtonStyle.Primary)
             );
-       
+
         const embed = new EmbedBuilder()
             .setDescription(data.attributes.synopsis)
             .setTitle('🔍 ' + data.attributes.titles.en)
@@ -52,7 +52,7 @@ export default new class implements Command {
                 text: 'Source: kitsu.io'
             })
             .setTimestamp()
-        
+
         const translateIntr = await interaction.followUp({
             embeds: [embed],
             components: [row]
@@ -66,6 +66,7 @@ export default new class implements Command {
             .on('collect', async (i) => {
                 switch (i.customId) {
                     case 'translate':
+                        try {
                         row.components[1].setDisabled(true)
                             .setLabel('Traduzindo')
                         await translateIntr.edit({
@@ -103,7 +104,11 @@ export default new class implements Command {
                         await i.editReply({
                             embeds: [embed],
                         })
-
+                    } catch {
+                        interaction.followUp({
+                            content: 'Ocorreu um erro ao traduzir'
+                        })
+                    }
                         break;
                     case 'add_favorite':
                         row.components[0].setDisabled(true)

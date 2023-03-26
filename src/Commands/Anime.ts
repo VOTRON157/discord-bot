@@ -20,7 +20,7 @@ export default new class implements Command {
         const keyw = interaction.options.get('anime_name')
         const KistsuAPI = new Kitsu()
         const data = await KistsuAPI.findAnime(keyw?.value as string)
-        if(!data) return await interaction.followUp({
+        if (!data) return await interaction.followUp({
             content: '🔍 Não encontrei nenhum resultado.',
             ephemeral: true
         })
@@ -30,10 +30,6 @@ export default new class implements Command {
                     .setCustomId('add_favorite')
                     .setLabel('Favoritar')
                     .setStyle(ButtonStyle.Success),
-                new ButtonBuilder()
-                    .setCustomId('translate')
-                    .setLabel('Traduzir')
-                    .setStyle(ButtonStyle.Primary)
             );
 
         const embed = new EmbedBuilder()
@@ -45,7 +41,7 @@ export default new class implements Command {
             }, {
                 name: '📚 Gênero(s)',
                 value: data.genres.join(', ')
-            },  {
+            }, {
                 name: '🌐 Veja as informações completas aqui',
                 value: `https://kitsu.io/anime/${data.id}`
             })
@@ -63,62 +59,13 @@ export default new class implements Command {
 
         translateIntr.createMessageComponentCollector({
             componentType: ComponentType.Button,
-            time: 30 * 1000,
+            time: 60 * 1000,
+            max: 1,
             filter: i => i.user.id === interaction.user.id
         })
             .on('collect', async (i) => {
                 switch (i.customId) {
-                    case 'translate':
-                        try {
-                        row.components[1].setDisabled(true)
-                            .setLabel('Traduzindo')
-                        await translateIntr.edit({
-                            components: [row]
-                        })
-                        await i.deferUpdate()
-                        let parameter = [{
-                            source: 'en',
-                            target: 'pt',
-                            text: data.attributes.synopsis
-                        }]
-                        for (var j of data.genres) {
-                            parameter.push({
-                                target: 'pt',
-                                source: 'en',
-                                text: j
-                            })
-                        }
-                        // Desculpa eu do futuro que vai ler isso depois 😢
-                        const texts = await new Translator({
-                            parameter: parameter,
-                            honorific: true
-                        }).translate() as Array<string>
-
-                        embed.setDescription(texts[0] + '\n\n**_`(💡 Vale lembrar: essa tradução não é original e pode conter erros.)`_**')
-                            .setFields({
-                                name: '📺 Total de episodios',
-                                value: String(data.attributes.episodeCount)
-                            }, {
-                                name: '📚 Gênero(s)',
-                                value: texts.slice(1).join(', ')
-                            }, {
-                                name: '🌐 Veja as informações completas aqui',
-                                value: `https://kitsu.io/anime/${data.id}`
-                            })
-                        await i.editReply({
-                            embeds: [embed],
-                        })
-                    } catch {
-                        interaction.followUp({
-                            content: 'Ocorreu um erro ao traduzir'
-                        })
-                    }
-                        break;
                     case 'add_favorite':
-                        row.components[0].setDisabled(true)
-                        interaction.editReply({
-                            components: [row]
-                        })
                         i.reply({
                             ephemeral: true,
                             content: 'Eu ainda não tenho um banco de dados, mas quando eu tiver você vai conseguir salvar seus animes preferidos tabóm? confia em mim ☺️.\nhttps://tenor.com/view/kiss-anime-cute-kawaii-gif-13843260'
@@ -128,7 +75,6 @@ export default new class implements Command {
             })
             .on('end', () => {
                 row.components[0].setDisabled(true)
-                row.components[1].setDisabled(true)
                 interaction.editReply({
                     components: [row]
                 })
